@@ -7,7 +7,12 @@
 package agendador;
 
 
+import gnu.io.CommPortIdentifier;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.util.Calendar;
+import java.util.Enumeration;
 
 
 /**
@@ -18,6 +23,15 @@ public class Agendador extends javax.swing.JFrame
 {
 
     Comunicador comunicador;
+    
+    
+    /** The port we're normally going to use. */
+	private static final String PORT_NAMES[] = { 
+			"/dev/tty.usbserial-A9007UX1", // Mac OS X
+                        "/dev/ttyACM0", // Raspberry Pi
+			"/dev/ttyUSB0", // Linux
+			"COM3", // Windows
+	};
     /**
      * Creates new form Agendador
      */
@@ -28,7 +42,30 @@ public class Agendador extends javax.swing.JFrame
         dpData.setFormats("dd/MM/yyyy");
         dpRelogioData.setFormats("dd/MM/yyyy");
         comunicador= new Comunicador();
+        Enumeration portas = comunicador.pegarPortas();
+                
+        //First, Find an instance of serial port as set in PORT_NAMES.
+		while (portas.hasMoreElements()) 
+        {
+			listPorta.addItem(((CommPortIdentifier) portas.nextElement()).getName());            
+		}                
         comunicador.Log=this.taLog;
+        centreWindow();
+        this.btnPegarHoraPCMouseClicked(null);
+        tfDiarioHora.setText(String.format("%02d:%02d", Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
+                Calendar.getInstance().get(Calendar.MINUTE), Calendar.getInstance().get(Calendar.SECOND)));
+        tfDataHora.setText(String.format("%02d:%02d", Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
+                Calendar.getInstance().get(Calendar.MINUTE), Calendar.getInstance().get(Calendar.SECOND)));
+        dpData.setDate(Calendar.getInstance().getTime());
+    }
+//-----------------------------------------------------------------------------------------------------
+    public void centreWindow( ) 
+    {
+        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (int) ((dimension.getWidth() - this.getWidth()) / 2);
+        int y = (int) ((dimension.getHeight() - this.getHeight()) / 2);
+        this.setLocation(x, y);
+        
     }
 //-----------------------------------------------------------------------------------------------------
     /**
@@ -65,16 +102,26 @@ public class Agendador extends javax.swing.JFrame
         tfDataHora = new javax.swing.JTextField();
         rbMotor1 = new javax.swing.JRadioButton();
         rbMotor2 = new javax.swing.JRadioButton();
+        tfTempoLigado = new javax.swing.JTextField();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jLabel11 = new javax.swing.JLabel();
         listPorta = new javax.swing.JComboBox();
         btnIniciar = new javax.swing.JButton();
+        btnParar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                formWindowClosed(evt);
+            }
+        });
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 0));
 
-        jLabel1.setFont(new java.awt.Font("Ubuntu", 0, 36)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Ubuntu", 0, 24)); // NOI18N
         jLabel1.setForeground(java.awt.Color.red);
         jLabel1.setText("Agendador");
 
@@ -85,20 +132,19 @@ public class Agendador extends javax.swing.JFrame
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel1)
-                .addGap(222, 222, 222))
+                .addGap(276, 276, 276))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 12, Short.MAX_VALUE))
+            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
-        pDiario2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Ajustar Relógio", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 24))); // NOI18N
+        pDiario2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Ajustar Relógio", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 18))); // NOI18N
 
-        jLabel6.setFont(new java.awt.Font("Ubuntu", 0, 24)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
         jLabel6.setText("Hora:");
 
+        btnEnviarRelogio.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
         btnEnviarRelogio.setText("Enviar");
         btnEnviarRelogio.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -106,6 +152,7 @@ public class Agendador extends javax.swing.JFrame
             }
         });
 
+        btnPegarHoraPC.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
         btnPegarHoraPC.setText("Pegar Hora");
         btnPegarHoraPC.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -113,14 +160,13 @@ public class Agendador extends javax.swing.JFrame
             }
         });
 
-        jLabel5.setFont(new java.awt.Font("Ubuntu", 0, 24)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
         jLabel5.setText("Data:");
 
-        tfRelogio.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
-        tfRelogio.setText("18:45");
+        tfRelogio.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
         tfRelogio.setToolTipText("HH:MM");
 
-        dpRelogioData.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
+        dpRelogioData.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
 
         javax.swing.GroupLayout pDiario2Layout = new javax.swing.GroupLayout(pDiario2);
         pDiario2.setLayout(pDiario2Layout);
@@ -152,7 +198,7 @@ public class Agendador extends javax.swing.JFrame
                         .addComponent(btnEnviarRelogio)
                         .addComponent(btnPegarHoraPC))
                     .addComponent(jLabel6))
-                .addContainerGap(16, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(pDiario2Layout.createSequentialGroup()
                 .addComponent(tfRelogio, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
@@ -162,14 +208,15 @@ public class Agendador extends javax.swing.JFrame
         taLog.setRows(5);
         jScrollPane1.setViewportView(taLog);
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Agendamento", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 24))); // NOI18N
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Agendamento", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 18))); // NOI18N
         jPanel2.setToolTipText("Agendamento");
 
-        pDiario.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Diário", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 18))); // NOI18N
+        pDiario.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Diário", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 15))); // NOI18N
 
-        jLabel2.setFont(new java.awt.Font("Ubuntu", 0, 24)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
         jLabel2.setText("Hora do dia:");
 
+        btnEnviarDiario.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
         btnEnviarDiario.setText("Enviar");
         btnEnviarDiario.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -177,7 +224,7 @@ public class Agendador extends javax.swing.JFrame
             }
         });
 
-        tfDiarioHora.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
+        tfDiarioHora.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
         tfDiarioHora.setText("16:51");
         tfDiarioHora.setToolTipText("HH:MM");
 
@@ -186,9 +233,9 @@ public class Agendador extends javax.swing.JFrame
         pDiarioLayout.setHorizontalGroup(
             pDiarioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pDiarioLayout.createSequentialGroup()
-                .addGap(124, 124, 124)
+                .addContainerGap()
                 .addComponent(jLabel2)
-                .addGap(3, 3, 3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(tfDiarioHora, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnEnviarDiario)
@@ -197,24 +244,24 @@ public class Agendador extends javax.swing.JFrame
         pDiarioLayout.setVerticalGroup(
             pDiarioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pDiarioLayout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addGroup(pDiarioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(pDiarioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(tfDiarioHora, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnEnviarDiario)
-                    .addComponent(jLabel2))
+                    .addComponent(jLabel2)
+                    .addComponent(btnEnviarDiario))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        pData.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Data", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 18))); // NOI18N
+        pData.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Data", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 15))); // NOI18N
 
-        jLabel3.setFont(new java.awt.Font("Ubuntu", 0, 24)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
         jLabel3.setText("Data:");
 
-        dpData.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
+        dpData.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
 
-        jLabel4.setFont(new java.awt.Font("Ubuntu", 0, 24)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
         jLabel4.setText("Hora:");
 
+        btnEnviarData.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
         btnEnviarData.setText("Enviar");
         btnEnviarData.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -222,7 +269,7 @@ public class Agendador extends javax.swing.JFrame
             }
         });
 
-        tfDataHora.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
+        tfDataHora.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
         tfDataHora.setText("18:45");
         tfDataHora.setToolTipText("HH:MM");
 
@@ -235,9 +282,9 @@ public class Agendador extends javax.swing.JFrame
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(dpData, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(26, 26, 26)
+                .addGap(28, 28, 28)
                 .addComponent(jLabel4)
-                .addGap(3, 3, 3)
+                .addGap(1, 1, 1)
                 .addComponent(tfDataHora, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnEnviarData)
@@ -247,30 +294,36 @@ public class Agendador extends javax.swing.JFrame
             pDataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pDataLayout.createSequentialGroup()
                 .addGroup(pDataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(pDataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(pDataLayout.createSequentialGroup()
-                            .addGap(24, 24, 24)
-                            .addGroup(pDataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabel3)
-                                .addComponent(dpData, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel4)))
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pDataLayout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(btnEnviarData)))
                     .addGroup(pDataLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(tfDataHora, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(12, 12, 12)
+                        .addGroup(pDataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(dpData, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(pDataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(tfDataHora, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnEnviarData)))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
 
         buttonGroup1.add(rbMotor1);
-        rbMotor1.setFont(new java.awt.Font("Ubuntu", 0, 24)); // NOI18N
+        rbMotor1.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
         rbMotor1.setSelected(true);
         rbMotor1.setText("Motor 1");
 
         buttonGroup1.add(rbMotor2);
-        rbMotor2.setFont(new java.awt.Font("Ubuntu", 0, 24)); // NOI18N
+        rbMotor2.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
         rbMotor2.setText("Motor 2");
+
+        tfTempoLigado.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
+        tfTempoLigado.setText("2000");
+        tfTempoLigado.setToolTipText("max 60000");
+
+        jLabel7.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
+        jLabel7.setText("Tempo Ligado:");
+
+        jLabel8.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
+        jLabel8.setText("ms");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -285,43 +338,68 @@ public class Agendador extends javax.swing.JFrame
                         .addComponent(rbMotor1)
                         .addGap(18, 18, 18)
                         .addComponent(rbMotor2)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfTempoLigado, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(4, 4, 4)
+                        .addComponent(jLabel8)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
+            .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(rbMotor1)
-                    .addComponent(rbMotor2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                    .addComponent(rbMotor2)
+                    .addComponent(tfTempoLigado, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7)
+                    .addComponent(jLabel8))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(pDiario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(pData, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(2, 2, 2)
+                .addComponent(pData, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 13, Short.MAX_VALUE))
         );
 
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Comunicacão", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 24))); // NOI18N
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Comunicacão", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 18))); // NOI18N
 
-        jLabel11.setFont(new java.awt.Font("Ubuntu", 0, 24)); // NOI18N
+        jLabel11.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
         jLabel11.setText("Porta:");
 
-        listPorta.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
+        listPorta.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
 
+        btnIniciar.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
         btnIniciar.setText("Iniciar");
+        btnIniciar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnIniciarMouseClicked(evt);
+            }
+        });
+
+        btnParar.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
+        btnParar.setText("Parar");
+        btnParar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnPararMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
                 .addComponent(jLabel11)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(listPorta, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnIniciar)
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnParar)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -330,8 +408,9 @@ public class Agendador extends javax.swing.JFrame
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel11)
                     .addComponent(btnIniciar)
-                    .addComponent(listPorta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(19, Short.MAX_VALUE))
+                    .addComponent(listPorta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnParar))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -342,26 +421,25 @@ public class Agendador extends javax.swing.JFrame
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(pDiario2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jScrollPane1)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(pDiario2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(pDiario2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(22, 22, 22))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
 
         pack();
@@ -374,52 +452,11 @@ public class Agendador extends javax.swing.JFrame
                 now.get(Calendar.MINUTE), now.get(Calendar.SECOND)));
         dpRelogioData.setDate(now.getTime());
     }//GEN-LAST:event_btnPegarHoraPCMouseClicked
-//-----------------------------------------------------------------------------------------------------
-    private void btnEnviarDiarioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEnviarDiarioMouseClicked
-       
-        
-        String[] tmp=tfDiarioHora.getText().split(":");
-        
-        System.out.println(tfDiarioHora.getText());
-        
-        if(rbMotor1.isSelected())
-            comunicador.AgendarDiario(Integer.parseInt(tmp[0]), 
-                                      Integer.parseInt(tmp[1]), 
-                                      1);
-        else
-            comunicador.AgendarDiario(Integer.parseInt(tmp[0]), 
-                                      Integer.parseInt(tmp[1]), 
-                                      2);
-    }//GEN-LAST:event_btnEnviarDiarioMouseClicked
-
-    private void btnEnviarDataMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEnviarDataMouseClicked
-        String[] tmp=tfDataHora.getText().split(":");
-        
-        System.out.println(tfDataHora.getText());        
-        Calendar calendar= Calendar.getInstance();        
-        calendar.setTime(dpData.getDate());
-        
-        
-        if(rbMotor1.isSelected())
-            comunicador.AgendarData(calendar.get(Calendar.DAY_OF_MONTH),
-                                    calendar.get(Calendar.MONTH),
-                                    calendar.get(Calendar.YEAR),
-                                    Integer.parseInt(tmp[0]), 
-                                    Integer.parseInt(tmp[1]), 
-                                    1);
-        else
-            comunicador.AgendarData(calendar.get(Calendar.DAY_OF_MONTH),
-                                    calendar.get(Calendar.MONTH),
-                                    calendar.get(Calendar.YEAR),
-                                    Integer.parseInt(tmp[0]), 
-                                    Integer.parseInt(tmp[1]), 
-                                    2);
-    }//GEN-LAST:event_btnEnviarDataMouseClicked
 
     private void btnEnviarRelogioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEnviarRelogioMouseClicked
-        String[] tmp=tfDataHora.getText().split(":");
+        String[] tmp=tfRelogio.getText().split(":");
         
-        System.out.println(tfRelogio.getText());
+        
         
         Calendar calendar= Calendar.getInstance();        
         calendar.setTime(dpRelogioData.getDate());
@@ -433,6 +470,77 @@ public class Agendador extends javax.swing.JFrame
                                   ,0);
      
     }//GEN-LAST:event_btnEnviarRelogioMouseClicked
+
+    private void btnEnviarDataMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEnviarDataMouseClicked
+        String[] tmp=tfDataHora.getText().split(":");
+
+        
+        Calendar calendar= Calendar.getInstance();
+        calendar.setTime(dpData.getDate());
+
+        if(rbMotor1.isSelected())
+        comunicador.AgendarData(calendar.get(Calendar.DAY_OF_MONTH),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.YEAR),
+            Integer.parseInt(tmp[0]),
+            Integer.parseInt(tmp[1]),
+            Integer.parseInt(tfTempoLigado.getText()),
+            1);
+        else
+        comunicador.AgendarData(calendar.get(Calendar.DAY_OF_MONTH),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.YEAR),
+            Integer.parseInt(tmp[0]),
+            Integer.parseInt(tmp[1]),
+            Integer.parseInt(tfTempoLigado.getText()),
+            2);
+    }//GEN-LAST:event_btnEnviarDataMouseClicked
+
+//-----------------------------------------------------------------------------------------------------
+    private void btnEnviarDiarioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEnviarDiarioMouseClicked
+
+        String[] tmp=tfDiarioHora.getText().split(":");
+
+        System.out.println(tfDiarioHora.getText());
+
+        if(rbMotor1.isSelected())
+        comunicador.AgendarDiario(Integer.parseInt(tmp[0]),
+            Integer.parseInt(tmp[1]),
+            Integer.parseInt(tfTempoLigado.getText()),
+            1);
+        else
+        comunicador.AgendarDiario(Integer.parseInt(tmp[0]),
+            Integer.parseInt(tmp[1]),
+            Integer.parseInt(tfTempoLigado.getText()),
+            2);
+    }//GEN-LAST:event_btnEnviarDiarioMouseClicked
+//-----------------------------------------------------------------------------------------------------
+    private void btnIniciarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnIniciarMouseClicked
+        Enumeration portas = comunicador.pegarPortas();
+        CommPortIdentifier porta;
+        
+        //First, Find an instance of serial port as set in PORT_NAMES.
+		while (portas.hasMoreElements()) 
+        {                        
+			porta=(CommPortIdentifier) portas.nextElement();
+            if(porta.getName().equals(listPorta.getSelectedItem().toString()))
+            {
+                comunicador.Iniciar(porta, taLog);
+                return;
+            }    
+		}       
+        
+        return;
+        
+    }//GEN-LAST:event_btnIniciarMouseClicked
+
+    private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+        comunicador.close();
+    }//GEN-LAST:event_formWindowClosed
+
+    private void btnPararMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnPararMouseClicked
+        comunicador.close();
+    }//GEN-LAST:event_btnPararMouseClicked
 //-----------------------------------------------------------------------------------------------------
     /**
      * @param args the command line arguments
@@ -477,6 +585,7 @@ public class Agendador extends javax.swing.JFrame
     private javax.swing.JButton btnEnviarDiario;
     private javax.swing.JButton btnEnviarRelogio;
     private javax.swing.JButton btnIniciar;
+    private javax.swing.JButton btnParar;
     private javax.swing.JButton btnPegarHoraPC;
     private javax.swing.ButtonGroup buttonGroup1;
     private org.jdesktop.swingx.JXDatePicker dpData;
@@ -488,6 +597,8 @@ public class Agendador extends javax.swing.JFrame
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -502,5 +613,6 @@ public class Agendador extends javax.swing.JFrame
     private javax.swing.JTextField tfDataHora;
     private javax.swing.JTextField tfDiarioHora;
     private javax.swing.JTextField tfRelogio;
+    private javax.swing.JTextField tfTempoLigado;
     // End of variables declaration//GEN-END:variables
 }

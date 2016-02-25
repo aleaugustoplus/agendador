@@ -11,10 +11,8 @@ import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.time.Clock;
 import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,13 +26,8 @@ public class Comunicador implements SerialPortEventListener
 {
     SerialPort serialPort;
     public JTextArea Log;
-        /** The port we're normally going to use. */
-	private static final String PORT_NAMES[] = { 
-			"/dev/tty.usbserial-A9007UX1", // Mac OS X
-                        "/dev/ttyACM0", // Raspberry Pi
-			"/dev/ttyUSB0", // Linux
-			"COM3", // Windows
-	};
+    
+
 	/**
 	* A BufferedReader which will be fed by a InputStreamReader 
 	* converting the bytes into characters 
@@ -46,7 +39,7 @@ public class Comunicador implements SerialPortEventListener
 	/** Milliseconds to block while waiting for port open */
 	private static final int TIME_OUT = 2000;
 	/** Default bits per second for COM port. */
-	private static final int DATA_RATE = 9600;
+	private static final int DATA_RATE = 38400;
     
     
     
@@ -113,6 +106,8 @@ public class Comunicador implements SerialPortEventListener
             {
 				String inputLine=input.readLine();
                 Log.append(inputLine);                
+                Log.append("\n");          
+                Log.setCaretPosition(Log.getDocument().getLength());
 				System.out.println(inputLine);
 			} 
             catch (Exception e) 
@@ -125,6 +120,7 @@ public class Comunicador implements SerialPortEventListener
 //-----------------------------------------------------------------------------------------------------
 	public Enumeration pegarPortas()
     {
+        System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyACM0");
         return CommPortIdentifier.getPortIdentifiers();        
     }
 //-----------------------------------------------------------------------------------------------------    
@@ -133,8 +129,9 @@ public class Comunicador implements SerialPortEventListener
         try 
         {
             String saida=String.format("A%02d%02d%04d%02d%02d%02d\n", dia, mes+1, ano, hora, minuto, segundo);
-            Log.append(saida);
-            //output.write(saida.getBytes());
+            Log.append("Enviado: " + saida);
+            Log.setCaretPosition(Log.getDocument().getLength());
+            output.write(saida.getBytes());
         } 
         catch (Exception ex) 
         {
@@ -142,14 +139,15 @@ public class Comunicador implements SerialPortEventListener
         }
     }
 //-----------------------------------------------------------------------------------------------------    
-    public void AgendarData(int dia, int mes, int ano, int hora, int minuto, int Porta)
+    public void AgendarData(int dia, int mes, int ano, int hora, int minuto, int TempoLigado, int Porta)
     {
         try 
         {
-            String saida=String.format("B%02d%02d%04d%02d%02d%02d\n", dia, mes+1, ano, 
-                                                                      hora, minuto, Porta);
-            Log.append(saida);
-            //output.write(saida.getBytes());
+            String saida=String.format("B%02d%02d%04d%02d%02d%010d%02d\n", dia, mes+1, ano, 
+                                                                      hora, minuto, TempoLigado, Porta);
+            Log.append("Enviado: " + saida);
+            Log.setCaretPosition(Log.getDocument().getLength());
+            output.write(saida.getBytes());
         } 
         catch (Exception ex) 
         {
@@ -157,13 +155,14 @@ public class Comunicador implements SerialPortEventListener
         }
     }   
 //-----------------------------------------------------------------------------------------------------    
-    public void AgendarDiario(int hora, int minuto, int Porta)
+    public void AgendarDiario(int hora, int minuto, int TempoLigado, int Porta)
     {
         try 
         {
-            String saida=String.format("C%02d%02d%02d\n", hora, minuto, Porta);
-            Log.append(saida);
-            //output.write(saida.getBytes());
+            String saida=String.format("C%02d%02d%010d%02d\n", hora, minuto, TempoLigado, Porta);
+            Log.append("Enviado: " + saida);
+            Log.setCaretPosition(Log.getDocument().getLength());
+            output.write(saida.getBytes());
         } 
         catch (Exception ex) 
         {
