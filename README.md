@@ -39,7 +39,7 @@ Please stay free to submit pull requests at any time
 
 ## Authors
 
-* **Alexandre Lopes** - *Initial work* - [Alexandre Lopes](https//alexandre-lopes.com)
+* **Alexandre Lopes** - *Initial work* - [Alexandre Lopes](http://alexandre-lopes.com)
 
 ## License
 
