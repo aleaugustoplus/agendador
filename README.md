@@ -13,9 +13,6 @@ Requires JAVA 1.6 or higher does not require installation
 Requires rxtxSerial java library installed 
 It works on Linux, Windows or MAC
 
-```
-Give examples
-```
 ## Screenshots
 
 ![screen image](images/scheduler.png)
