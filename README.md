@@ -4,7 +4,7 @@ Graphic interface that works along with [Scheduler](https://github.com/aleaugust
 
 ## Getting Started
 
-Run the command  below to start the software
+Run the following command to start the software
 ```java -jar "dist\Agendador.jar"```
 
 ### Prerequisites
@@ -18,11 +18,11 @@ Give examples
 ```
 ## Screenshots
 
-![](images/scheduler.png)
+![screen image](images/scheduler.png)
 
 ### Installing
 
-It requires 
+Does not require special installation instructions simply have the pre-requisites installed and run ```java -jar "dist\Agendador.jar"```
 
 ## Running the tests
 
@@ -43,8 +43,6 @@ Please stay free to submit pull requests at any time
 ## Authors
 
 * **Alexandre Lopes** - *Initial work* - [Alexandre Lopes](https//alexandre-lopes.com)
-
-
 
 ## License
 
