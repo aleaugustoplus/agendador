@@ -13,6 +13,9 @@ Requires JAVA 1.6 or higher does not require installation
 ```
 Give examples
 ```
+## Screenshots
+
+![](images/scheduler.png)
 
 ### Installing
 
